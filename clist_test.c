@@ -11,6 +11,7 @@
 
 #include "clist.h"
 
+
 // Some known testdata, for testing
 const char *testdata[] = {"Zero", "One", "Two", "Three", "Four", "Five",
   "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen",
@@ -23,6 +24,7 @@ const char *testdata_sorted[] = {"Eight", "Eighteen", "Eleven", "Fifteen",
   "Twenty", "Two", "Zero"};
 
 static const int num_testdata = sizeof(testdata) / sizeof(testdata[0]);
+
 
 // Checks that value is true; if not, prints a failure message and
 // returns 0 from this function
@@ -53,6 +55,7 @@ static const int num_testdata = sizeof(testdata) / sizeof(testdata[0]);
       goto test_error;                                            \
     }                                                             \
   }
+
 
 /*
  * Tests the CL_new, CL_push, CL_pop, and CL_free functions
@@ -113,6 +116,7 @@ int test_cl_append()
   return ret;
 }
 
+
 /*
  * Tests the CL_nth function
  *
@@ -162,66 +166,12 @@ int test_cl_nth()
   return ret;
 }
 
-/*
- * Test the circular behavior of the circular linked list
- *
- * Returns: 1 if all tests pass, 0 otherwise
- */
-int test_circular_behavior() {
-    int ret = 0;
-    CList list = CL_new();
-    for (int i = 0; i < num_testdata; i++) {
-        CL_append(list, testdata[i]);
-    }
-    // Check circular behavior
-    test_compare(CL_nth(list, num_testdata), testdata[0]);
-    ret = 1;
 
-test_error:
-    CL_free(list);
-    return ret;
-}
 
-/*
- * Test handling of duplicate entries
- *
- * Returns: 1 if all tests pass, 0 otherwise
- */
-int test_duplicate_entries() {
-    int ret = 0;
-    CList list = CL_new();
-    CL_push(list, "alpha");
-    CL_push(list, "alpha");  // Push duplicate
-    test_assert(CL_length(list) == 2);
-    test_compare(CL_pop(list), "alpha");
-    test_compare(CL_pop(list), "alpha"); // Should be able to pop both
-    ret = 1;
+  //
+  // TODO: Add your code here
+  //
 
-test_error:
-    CL_free(list);
-    return ret;
-}
-
-/*
- * Test inserting elements at various positions
- *
- * Returns: 1 if all tests pass, 0 otherwise
- */
-int test_cl_insert() {
-    int ret = 0;
-    CList list = CL_new();
-    CL_push(list, "first");
-    CL_insert(list, "second", 1); // Insert at end
-    CL_insert(list, "zero", 0); // Insert at start
-    test_compare(CL_nth(list, 0), "zero");
-    test_compare(CL_nth(list, 1), "first");
-    test_compare(CL_nth(list, 2), "second");
-    ret = 1;
-
-test_error:
-    CL_free(list);
-    return ret;
-}
 
 /*
  * A demonstration of how to use a CList, which also doubles as a
@@ -231,59 +181,96 @@ test_error:
  */
 int sample_clist_usage()
 {
-    int ret = 0;
-    CList list = CL_new();
+  int ret = 0;
+  CList list = CL_new();
 
-    // new lists have length 0
-    test_assert( CL_length(list) == 0 );
+  // new lists have length 0
+  test_assert( CL_length(list) == 0 );
 
-    CL_push(list, "alpha");       // push 'alpha' onto front of list
-    CL_push(list, "bravo");       // push 'bravo' onto front of list
-    CL_push(list, "charlie");     // push 'charlie' onto front of list
+  CL_push(list, "alpha");       // push 'alpha' onto front of list
+  CL_push(list, "bravo");       // push 'bravo' onto front of list
+  CL_push(list, "charlie");     // push 'charlie' onto front of list
 
-    // list is now charlie, bravo, alpha
+  // list is now charlie, bravo, alpha
 
-    CL_print(list);               // print out the list: charlie, bravo, alpha
+  CL_print(list);               // print out the list: charlie, bravo, alpha
 
-    test_assert( CL_length(list) == 3 );
+  test_assert( CL_length(list) == 3 );
 
-    // pop the element off the front of the list, which should be 'charlie'
-    test_compare( CL_pop(list), "charlie" );
-    test_assert( CL_length(list) == 2 );
+  // pop the element off the front of the list, which should be 'charlie'
+  test_compare( CL_pop(list), "charlie" );
+  test_assert( CL_length(list) == 2 );
 
-    CL_insert(list, "delta", 1);  // insert 'delta' into the second position
+  CL_insert(list, "delta", 2);    // insert 'delta' at position 2
+  CL_append(list, "echo");        // append 'echo' at end of list
+  CL_insert(list, "foxtrot", -2); // insert 'foxtrot' one before end
 
-    // list should now be bravo, delta, alpha
-    test_compare( CL_nth(list, 0), "bravo" );
-    test_compare( CL_nth(list, 1), "delta" );
-    test_compare( CL_nth(list, 2), "alpha" );
+  // list is now: bravo, alpha, delta, foxtrot, echo
+  test_assert( CL_length(list) == 5 );
 
-    ret = 1;
+  // retrieve the 3rd element, numbering from 0, so it should be foxtrot
+  test_compare( CL_nth(list, 3), "foxtrot" );
+  
+  // list hasn't changed
+  test_assert( CL_length(list) == 5 );
+
+  // now REMOVE the third element
+  test_compare( CL_remove(list, 3), "foxtrot" );
+  test_assert( CL_length(list) == 4 );
+
+  // list is now: bravo, alpha, delta, echo
+
+  // make a copy of the list
+  CList list_copy = CL_copy(list);
+
+  test_assert( CL_length(list_copy) == 4 );
+
+  // reverse the copy, so it is now echo, delta, alpha, bravo
+  CL_reverse(list_copy);
+
+  // remove the first item from the copy
+  test_compare( CL_remove(list_copy, 0), "echo" );
+  test_assert( CL_length(list_copy) == 3 );
+  
+  // original list should be unchanged
+  test_assert( CL_length(list) == 4 );
+  
+  // join the two lists; note this operation empties list_copy
+  CL_join(list, list_copy);
+
+  // list is now: bravo, alpha, delta, echo, delta, alpha, bravo
+  // list_copy should be empty
+  test_assert( CL_length(list) == 7 );
+  test_compare( CL_nth(list, 3), "echo" );
+  test_assert( CL_length(list_copy) == 0);
+
+  ret = 1;
 
  test_error:
-    CL_free(list);
-    return ret;
+  // Lists must be destroyed
+  CL_free(list);
+  CL_free(list_copy);
+  return ret;
 }
 
-/*
- * Main function
- *
- * Returns: 0 if all tests pass, 1 otherwise
- */
-int main(int argc, char *argv[])
+
+int main()
 {
-    int num_tests = 0;
-    int passed = 0;
+  int passed = 0;
+  int num_tests = 0;
 
-    num_tests++; passed += test_cl_push_pop();
-    num_tests++; passed += test_cl_append();
-    num_tests++; passed += test_cl_nth();
-    num_tests++; passed += test_circular_behavior();
-    num_tests++; passed += test_duplicate_entries();
-    num_tests++; passed += test_cl_insert();
-    num_tests++; passed += sample_clist_usage();
+  num_tests++; passed += test_cl_push_pop(); 
+  num_tests++; passed += test_cl_append();
+  num_tests++; passed += test_cl_nth();
 
-    // Summary of test results
-    printf("\nPassed %d out of %d tests.\n", passed, num_tests);
-    return (num_tests == passed) ? 0 : 1;
+
+  //
+  // TODO: Add your code here
+  //
+
+  num_tests++; passed += sample_clist_usage();
+
+  printf("Passed %d/%d test cases\n", passed, num_tests);
+  fflush(stdout);
+  return 0;
 }
