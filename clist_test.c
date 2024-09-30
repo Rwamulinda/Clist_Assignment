@@ -2,6 +2,8 @@
  * clist_test.c
  * 
  * Automated test code for CLists
+ * 
+ * Author: Pauline Uwase
  */
 
 #include <stdio.h>

@@ -3,7 +3,7 @@
  * 
  * Linked list implementation for ISSE Assignment 5
  *
- * Author: <your name here>
+ * Author: Pauline Uwase
  */
 
 #include <stdio.h>
