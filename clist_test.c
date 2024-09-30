@@ -166,6 +166,59 @@ int test_cl_nth()
   return ret;
 }
 
+int test_cl_insert() {
+    int ret = 0;
+    CList list = CL_new();
+    CL_push(list, "first");
+    CL_insert(list, "second", 1); // Insert at end
+    CL_insert(list, "zero", 0); // Insert at start
+    test_compare(CL_nth(list, 0), "zero");
+    test_compare(CL_nth(list, 1), "first");
+    test_compare(CL_nth(list, 2), "second");
+    ret = 1;
+
+test_error:
+    CL_free(list);
+    return ret;
+}
+
+
+int test_duplicate_entries() {
+    int ret = 0;
+    CList list = CL_new();
+    CL_push(list, "alpha");
+    CL_push(list, "alpha");  // Push duplicate
+    test_assert(CL_length(list) == 2);
+    test_compare(CL_pop(list), "alpha");
+    test_compare(CL_pop(list), "alpha"); // Should be able to pop both
+    ret = 1;
+
+test_error:
+    CL_free(list);
+    return ret;
+}
+
+/*
+ * Test for memory leaks by creating and freeing multiple lists
+ *
+ * Returns: 1 if all tests pass, 0 otherwise
+ */
+int test_memory_leak() {
+    int ret = 0;
+    const int num_lists = 100; // Number of lists to create and free
+    for (int i = 0; i < num_lists; i++) {
+        CList list = CL_new(); // Create a new list
+        for (int j = 0; j < num_testdata; j++) {
+            CL_append(list, testdata[j]); // Append some data
+        }
+        CL_free(list); // Free the list
+    }
+    ret = 1; // If all iterations complete without issue, return success
+
+test_error:
+    return ret;
+}
+
 
 
   //
@@ -262,7 +315,9 @@ int main()
   num_tests++; passed += test_cl_push_pop(); 
   num_tests++; passed += test_cl_append();
   num_tests++; passed += test_cl_nth();
-
+  num_tests++; passed += test_memory_leak(); // Add memory leak test here
+  num_tests++; passed += test_duplicate_entries();
+  num_tests++; passed += test_cl_insert();
 
   //
   // TODO: Add your code here
