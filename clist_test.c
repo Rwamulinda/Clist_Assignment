@@ -204,7 +204,6 @@ test_error:
  * Returns: 1 if all tests pass, 0 otherwise
  */
 int test_memory_leak() {
-    int ret = 0;
     const int num_lists = 100; // Number of lists to create and free
     for (int i = 0; i < num_lists; i++) {
         CList list = CL_new(); // Create a new list
@@ -213,11 +212,9 @@ int test_memory_leak() {
         }
         CL_free(list); // Free the list
     }
-    ret = 1; // If all iterations complete without issue, return success
-
-test_error:
-    return ret;
+    return 1; // If all iterations complete without issue, return success
 }
+
 
 
 
